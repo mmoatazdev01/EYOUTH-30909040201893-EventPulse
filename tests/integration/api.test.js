@@ -7,6 +7,8 @@ jest.mock('../../models/User');
 const app = require('../../app');
 
 beforeEach(() => {
+  process.env.JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret';
+
   User.findById.mockResolvedValue({
     _id: '507f1f77bcf86cd799439011',
     name: 'Admin Test',
@@ -37,7 +39,11 @@ describe('EventPulse API', () => {
   });
 
   it('POST /api/events with invalid payload returns 422', async () => {
-    const token = jwt.sign({ userId: '507f1f77bcf86cd799439011', role: 'admin' }, 'fallback_secret', { expiresIn: '1h' });
+    const token = jwt.sign(
+      { userId: '507f1f77bcf86cd799439011', role: 'admin' },
+      process.env.JWT_SECRET || 'fallback_secret',
+      { expiresIn: '1h' }
+    );
 
     const res = await request(app)
       .post('/api/events')

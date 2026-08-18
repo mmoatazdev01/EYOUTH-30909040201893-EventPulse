@@ -62,6 +62,16 @@ const swaggerOptions = {
 const swaggerSpec = swaggerJsdoc(swaggerOptions);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
+app.get('/', (req, res) => {
+  res.status(200).json({
+    status: 'success',
+    message: 'EventPulse API is running',
+    documentation: '/api-docs',
+    health: '/health',
+    version: '1.0.0'
+  });
+});
+
 app.use('/api/auth', authRoutes);
 app.use('/api/events', eventRoutes);
 app.use('/api/registrations', registrationRoutes);

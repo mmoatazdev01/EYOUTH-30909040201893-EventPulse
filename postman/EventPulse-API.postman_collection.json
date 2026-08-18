@@ -1,0 +1,91 @@
+{
+  "info": {
+    "name": "EventPulse API",
+    "description": "EventPulse backend collection for auth, events, registrations, and announcements.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": { "raw": "{{baseUrl}}/health", "host": ["{{baseUrl}}"], "path": ["health"] }
+      }
+    },
+    {
+      "name": "Register User",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Student User\",\n  \"email\": \"student@example.com\",\n  \"password\": \"password123\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/api/auth/register", "host": ["{{baseUrl}}"], "path": ["api", "auth", "register"] }
+      }
+    },
+    {
+      "name": "Login User",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"student@example.com\",\n  \"password\": \"password123\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/api/auth/login", "host": ["{{baseUrl}}"], "path": ["api", "auth", "login"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const response = pm.response.json();",
+              "if (response.token) {",
+              "  pm.environment.set(\"token\", response.token);",
+              "}",
+              ""
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Get Events",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": { "raw": "{{baseUrl}}/api/events?page=1&limit=10", "host": ["{{baseUrl}}"], "path": ["api", "events"], "query": [{ "key": "page", "value": "1" }, { "key": "limit", "value": "10" }] }
+      }
+    },
+    {
+      "name": "Create Event (Admin)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Sample Admin Event\",\n  \"description\": \"A test event created via Postman\",\n  \"category\": \"64f1a3d8a87bc8186a57c1ea\",\n  \"date\": \"2026-12-10T18:00:00.000Z\",\n  \"city\": \"Cairo\",\n  \"venue\": \"The GrEEK Campus\",\n  \"capacity\": 75\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/api/events", "host": ["{{baseUrl}}"], "path": ["api", "events"] }
+      }
+    },
+    {
+      "name": "My Registrations",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": { "raw": "{{baseUrl}}/api/registrations/my", "host": ["{{baseUrl}}"], "path": ["api", "registrations", "my"] }
+      }
+    }
+  ],
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:5000" },
+    { "key": "token", "value": "" }
+  ]
+}

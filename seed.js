@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const dns = require('dns');
 const bcrypt = require('bcryptjs');
 const dotenv = require('dotenv');
 const User = require('./models/User');
@@ -8,6 +9,7 @@ const Registration = require('./models/Registration');
 const Message = require('./models/Message');
 
 dotenv.config();
+dns.setServers(['1.1.1.1', '8.8.8.8']);
 
 const seedDB = async () => {
   try {

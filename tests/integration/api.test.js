@@ -23,6 +23,7 @@ describe('EventPulse API', () => {
 
     expect(res.statusCode).toBe(200);
     expect(Array.isArray(res.body.data)).toBe(true);
+    expect(res.body).toHaveProperty('totalPages');
   });
 
   it('POST /api/events without auth returns 401', async () => {
@@ -57,5 +58,24 @@ describe('EventPulse API', () => {
 
     expect(res.statusCode).toBe(422);
     expect(res.body.errors).toBeDefined();
+  });
+
+  it('PATCH /api/events with invalid fields returns 422', async () => {
+    const token = jwt.sign(
+      { userId: '507f1f77bcf86cd799439011', role: 'admin' },
+      process.env.JWT_SECRET || 'fallback_secret',
+      { expiresIn: '1h' }
+    );
+
+    const res = await request(app)
+      .patch('/api/events/507f1f77bcf86cd799439012')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ capacity: 0, category: 'not-a-valid-id' });
+
+    expect(res.statusCode).toBe(422);
+    expect(res.body.errors).toEqual(expect.arrayContaining([
+      expect.objectContaining({ field: 'capacity' }),
+      expect.objectContaining({ field: 'category' })
+    ]));
   });
 });

@@ -2,10 +2,10 @@ const mongoose = require('mongoose');
 
 const connectDB = async () => {
   try {
-    const mongoUri = process.env.MONGODB_URI;
+    const mongoUri = process.env.MONGO_URI || process.env.MONGODB_URI;
 
     if (!mongoUri) {
-      console.warn('MONGODB_URI is not defined. Running without a database connection.');
+      console.warn('MONGO_URI is not defined. Running without a database connection.');
       return false;
     }
 

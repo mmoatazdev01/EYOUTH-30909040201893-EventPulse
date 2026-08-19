@@ -11,11 +11,12 @@ dotenv.config();
 
 const seedDB = async () => {
   try {
-    if (!process.env.MONGODB_URI) {
-      throw new Error('MONGODB_URI is required in .env');
+    const mongoUri = process.env.MONGO_URI || process.env.MONGODB_URI;
+    if (!mongoUri) {
+      throw new Error('MONGO_URI is required in .env');
     }
 
-    await mongoose.connect(process.env.MONGODB_URI);
+    await mongoose.connect(mongoUri);
 
     await Promise.all([
       User.deleteMany({}),

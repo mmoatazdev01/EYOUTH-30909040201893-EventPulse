@@ -16,15 +16,32 @@ exports.registerForEvent = asyncHandler(async (req, res, next) => {
     return next(new AppError('You are already registered for this event', 409));
   }
 
-  const registrationCount = await Registration.countDocuments({ event: eventId });
-  if (registrationCount >= event.capacity) {
+  const reservedEvent = await Event.findOneAndUpdate(
+    {
+      _id: eventId,
+      $or: [
+        { registrationsCount: { $lt: event.capacity } },
+        { registrationsCount: { $exists: false } }
+      ]
+    },
+    { $inc: { registrationsCount: 1 } },
+    { new: true }
+  );
+
+  if (!reservedEvent) {
     return next(new AppError('Event capacity reached', 400));
   }
 
-  const registration = await Registration.create({
-    event: eventId,
-    attendee: req.user.id
-  });
+  let registration;
+  try {
+    registration = await Registration.create({
+      event: eventId,
+      attendee: req.user.id
+    });
+  } catch (error) {
+    await Event.updateOne({ _id: eventId }, { $inc: { registrationsCount: -1 } });
+    throw error;
+  }
 
   const populatedRegistration = await Registration.findById(registration._id)
     .populate('event')
@@ -63,6 +80,7 @@ exports.deleteRegistration = asyncHandler(async (req, res, next) => {
   }
 
   await registration.deleteOne();
+  await Event.updateOne({ _id: registration.event }, { $inc: { registrationsCount: -1 } });
 
   res.status(200).json({
     status: 'success',

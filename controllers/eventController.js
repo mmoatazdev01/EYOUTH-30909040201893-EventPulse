@@ -13,9 +13,13 @@ exports.getAllEvents = asyncHandler(async (req, res) => {
     endDate,
     page = 1,
     limit = 10,
-    sort = 'date',
+    sortBy,
+    sort,
     search = ''
   } = req.query;
+
+  const currentPage = Math.max(Number.parseInt(page, 10) || 1, 1);
+  const pageLimit = Math.min(Math.max(Number.parseInt(limit, 10) || 10, 1), 100);
 
   if (!global.__ALLOW_MONGO_TESTS__ && !mongoose.connection.readyState) {
     return res.status(200).json({
@@ -24,6 +28,7 @@ exports.getAllEvents = asyncHandler(async (req, res) => {
       total: 0,
       page: Number(page),
       limit: Number(limit),
+      totalPages: 0,
       data: []
     });
   }
@@ -50,17 +55,14 @@ exports.getAllEvents = asyncHandler(async (req, res) => {
     registrations: 'registrations'
   };
 
-  const sortField = allowedSortFields[sort] || 'date';
+  const sortField = allowedSortFields[sortBy || sort || 'date'] || 'date';
 
   const query = Event.find(filters)
     .populate('category')
     .populate('organizer', 'name email');
 
   const total = await Event.countDocuments(filters);
-  const events = await query
-    .sort({ date: 1 })
-    .skip((Number(page) - 1) * Number(limit))
-    .limit(Number(limit));
+  const events = await query.sort({ date: 1 });
 
   const data = await Promise.all(events.map(async (event) => {
     const registrationCount = await Registration.countDocuments({ event: event._id });
@@ -74,13 +76,16 @@ exports.getAllEvents = asyncHandler(async (req, res) => {
     data.sort((a, b) => b.registrations - a.registrations);
   }
 
+  const pagedData = data.slice((currentPage - 1) * pageLimit, currentPage * pageLimit);
+
   res.status(200).json({
     status: 'success',
-    count: data.length,
+    count: pagedData.length,
     total,
-    page: Number(page),
-    limit: Number(limit),
-    data
+    page: currentPage,
+    limit: pageLimit,
+    totalPages: Math.ceil(total / pageLimit),
+    data: pagedData
   });
 });
 

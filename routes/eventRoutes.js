@@ -36,7 +36,14 @@ router.patch(
   [
     requireAuth,
     requireRole('admin'),
-    param('id').isMongoId().withMessage('Invalid event id')
+    param('id').isMongoId().withMessage('Invalid event id'),
+    body('title').optional().notEmpty().withMessage('Title cannot be empty'),
+    body('description').optional().notEmpty().withMessage('Description cannot be empty'),
+    body('category').optional().isMongoId().withMessage('Category must be a valid Mongo ID'),
+    body('date').optional().isISO8601().withMessage('Valid event date is required'),
+    body('city').optional().notEmpty().withMessage('City cannot be empty'),
+    body('venue').optional().notEmpty().withMessage('Venue cannot be empty'),
+    body('capacity').optional().isFloat({ min: 1 }).withMessage('Capacity must be a positive number')
   ],
   validate,
   updateEvent

@@ -49,7 +49,7 @@ EventPulse is a Node.js and Express API for discovering events, registering atte
 ```env
 PORT=5000
 NODE_ENV=development
-MONGODB_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net/eventpulse
+MONGO_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net/eventpulse
 JWT_SECRET=your_secure_secret
 JWT_EXPIRES_IN=7d
 ```
@@ -60,7 +60,7 @@ JWT_EXPIRES_IN=7d
 | GET | `/health` | Public | Service health and DB state |
 | POST | `/api/auth/register` | Public | Register a user |
 | POST | `/api/auth/login` | Public | Login and receive JWT |
-| GET | `/api/events` | Public | List and filter events |
+| GET | `/api/events` | Public | List, filter, search, paginate, and sort events |
 | GET | `/api/events/:id` | Public | Get one event |
 | POST | `/api/events` | Admin | Create event |
 | PATCH | `/api/events/:id` | Admin | Update event |
@@ -74,7 +74,7 @@ JWT_EXPIRES_IN=7d
 
 ## Database Seed
 The seed script drops the existing collections and repopulates the database with:
-- admin account: `Admin123` / `Admin321@gmail.com`
+- admin account: `Admin321@gmail.com` / `@dmin231@decieyouth`
 - standard event categories
 - sample events in Cairo, Alexandria, Mansoura, and Hurghada
 
@@ -85,7 +85,7 @@ The seed script drops the existing collections and repopulates the database with
    ```bash
    vercel
    ```
-3. Add environment variables in the project dashboard, including `MONGODB_URI`, `JWT_SECRET`, and `NODE_ENV=production`.
+3. Add environment variables in the project dashboard, including `MONGO_URI`, `JWT_SECRET`, and `NODE_ENV=production`.
 4. Use the included `vercel.json` configuration.
 
 ## Testing

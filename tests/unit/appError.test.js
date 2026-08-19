@@ -13,6 +13,18 @@ describe('AppError', () => {
 });
 
 describe('asyncHandler', () => {
+  it('passes successful async handlers through', async () => {
+    const next = jest.fn();
+    const res = { json: jest.fn() };
+
+    await asyncHandler(async (req, response) => {
+      response.json({ ok: true });
+    })({}, res, next);
+
+    expect(res.json).toHaveBeenCalledWith({ ok: true });
+    expect(next).not.toHaveBeenCalled();
+  });
+
   it('passes async errors to next', async () => {
     const req = {};
     const res = {};
